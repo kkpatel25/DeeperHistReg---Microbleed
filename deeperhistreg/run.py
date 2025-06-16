@@ -29,7 +29,7 @@ def run_registration(fixed: np.ndarray, moving: np.ndarray, **config):
     save_path = config['temporary_path']
 
     if save_path is None:
-        save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), str(datetime.now()))
+        save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), str(datetime.now().strftime("%Y-%m-%d_%H-%M-%S")))
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)

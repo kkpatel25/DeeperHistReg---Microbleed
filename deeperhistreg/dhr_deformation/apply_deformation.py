@@ -23,11 +23,8 @@ from dhr_utils import warping as w
 def apply_deformation(
     source : np.ndarray,
     target_shape : Tuple[int,int,int],
-    warped_image_path : Union[pathlib.Path, str],
     displacement_field : tc.Tensor,
-    saver : tiff_saver.WSISaver = tiff_saver.WSISaver,
-    save_params : dict = tiff_saver.default_params,
-    ) -> None:
+    ) -> tc.Tensor:
 
     source = u.image_to_tensor(source).to(tc.float32)
 
@@ -36,8 +33,9 @@ def apply_deformation(
         warped_source = w.warp_tensor(source, displacement_field)
 
     warped_source = warped_source.cpu().to(tc.uint8)
+    return warped_source
 
-    to_save = pair_saver.PairFullSaver(saver, save_params)
-    to_save.save_images(warped_source, target_shape[:2], warped_image_path)
+    #to_save = pair_saver.PairFullSaver(saver, save_params)
+    #to_save.save_images(warped_source, target_shape[:2], warped_image_path)
 
 

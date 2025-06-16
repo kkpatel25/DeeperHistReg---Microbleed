@@ -12,7 +12,6 @@ import torch as tc
 import matplotlib.pyplot as plt
 
 ### Internal Imports ###
-import dhr_input_output.input_output as io
 from dhr_input_output.dhr_savers import saver as wsi_saver
 from dhr_input_output.dhr_savers import displacement_saver
 import dhr_utils.utils as u

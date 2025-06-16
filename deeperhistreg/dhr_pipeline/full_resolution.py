@@ -42,10 +42,11 @@ class DeeperHistReg_FullResolution():
         target_resample_ratio = loading_params['target_resample_ratio']
 
 
-        self.moving = u.smooth_and_resample_color_image(self.moving, source_resample_ratio)
-        self.fixed = u.smooth_and_resample_color_image(self.fixed, target_resample_ratio)
+        #self.moving = u.smooth_and_resample_color_image(self.moving, source_resample_ratio)
+        #self.fixed = u.smooth_and_resample_color_image(self.fixed, target_resample_ratio)
 
         self.fixed, self.moving, self.padding_params = u.pad_to_same_size_np(self.fixed, self.moving, pad_value)
+        print(self.padding_params)
 
         self.padding_params['source_resample_ratio'] = source_resample_ratio
         self.padding_params['target_resample_ratio'] = target_resample_ratio

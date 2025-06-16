@@ -20,33 +20,6 @@ from dhr_utils import warping as w
 
 ########################
 
-
-def load_slide(load_path, level, load_slide=False):
-    slide = openslide.OpenSlide(load_path)
-    dimension = slide.level_dimensions[level]
-    image = slide.read_region((0, 0), level, dimension)
-    image = np.asarray(image)[:, :, 0:3].astype(np.float32)
-    # image = u.normalize(image)
-    if load_slide:
-        return image, slide
-    else:
-        return image
-
-def load_image(load_path, mode=None):
-    # TODO - documentation
-    if mode is None:
-        array = sitk.GetArrayFromImage(sitk.ReadImage(str(load_path))).astype(np.float32)
-        if len(array.shape) == 3:
-            if array.shape[2] == 4:
-                array = array[:, :, 0:3]
-    elif mode == "ANHIR":
-        array = sitk.GetArrayFromImage(sitk.ReadImage(str(load_path))).astype(np.float32)
-    elif mode == "ACROBAT":
-        array = sitk.GetArrayFromImage(sitk.ReadImage(str(load_path))).astype(np.float32)[:, :, 0:3]
-    elif mode == "PYRAMID":
-        array = openslide.OpenSlide(load_path)
-    return array
-
 def save_image(image, save_path, renormalize=True):
     # TODO - documentation
     if not save_path.parents[0].exists():
