@@ -3,14 +3,11 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from typing import Iterable
-import logging
-import time
-import pathlib
 
 ### External Imports ###
 import numpy as np
 import torch as tc
+from typing import Union
 
 ### Internal Imports ###
 from dhr_preprocessing import preprocessing as pre
@@ -107,8 +104,9 @@ class DeeperHistReg_FullResolution():
 
     def run_registration(
         self,
-        fixed,
-        moving) -> None:
+        fixed: Union[tc.Tensor, np.ndarray],
+        moving: Union[tc.Tensor, np.ndarray]
+    ) -> Union[tc.Tensor, np.ndarray]:
 
         self.fixed, self.moving = fixed, moving
         self.process_array()

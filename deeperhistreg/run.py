@@ -1,13 +1,14 @@
 ### Ecosystem Imports ###
 import os
 import sys
+import numpy as np
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "."))
+
 from typing import Iterable
-import logging
 import argparse
 from datetime import datetime
 import shutil
-import pathlib
 
 ### External Imports ###
 
@@ -16,7 +17,7 @@ from dhr_pipeline import full_resolution as fr
 from dhr_pipeline import registration_params as rp
 
 
-def run_registration(fixed, moving, **config):
+def run_registration(fixed: np.ndarray, moving: np.ndarray, **config):
     ### Parse Config ###
     try:
         registration_parameters_path = config['registration_parameters_path']
@@ -24,7 +25,6 @@ def run_registration(fixed, moving, **config):
     except KeyError:
         registration_parameters = config['registration_parameters']
 
-    output_path = config['output_path']
     experiment_name = config['case_name']
     save_path = config['temporary_path']
 
@@ -41,32 +41,11 @@ def run_registration(fixed, moving, **config):
         # this function will return the displacement field
 
         displacement_field = pipeline.run_registration(fixed, moving)
+        shutil.rmtree(save_path)
         return displacement_field
 
     except Exception as e:
         print(f"Exception: {e}")
-
-    ### Copy Outputs and Clean ###
-    if registration_parameters['save_final_images']:
-        warped_name = [item for item in os.listdir(pathlib.Path(save_path) / experiment_name / "Results_Final") if "warped_source" in item][0]
-        shutil.copy(pathlib.Path(save_path) / experiment_name / "Results_Final" / warped_name, pathlib.Path(output_path) / warped_name)
-        shutil.copy(pathlib.Path(save_path) / "logs.txt", pathlib.Path(output_path) / "logs.txt")
-        if config['copy_target']:
-            _, target_name = os.path.split(target_path)
-            _, extension = os.path.splitext(target_name)
-            target_name = "target" + extension
-            shutil.copy(target_path, pathlib.Path(output_path) / target_name)
-
-    if config['save_displacement_field']:
-        shutil.copy(pathlib.Path(save_path) / experiment_name / "Results_Final" / "displacement_field.mha", pathlib.Path(output_path) / "displacement_field.mha")
-
-    try:
-        shutil.copy(pathlib.Path(save_path) / experiment_name / "Results_Final" / "postprocessing_params.json", pathlib.Path(output_path) / "postprocessing_params.json")
-    except:
-        pass
-
-    if config['delete_temporary_results']:
-        shutil.rmtree(save_path)
 
 def parse_args(args : Iterable) -> dict:
     ### Create Parser ###

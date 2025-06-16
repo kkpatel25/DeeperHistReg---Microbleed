@@ -313,20 +313,16 @@ def unpad_pyvips(
 
 def crop_to_template(
     image : Union[tc.Tensor, np.ndarray, pyvips.Image],
-    template : Union[tc.Tensor, np.ndarray, pyvips.Image],
+    template_shape : Tuple[int,int],
     ) -> Union[tc.Tensor, np.ndarray, pyvips.Image]:
     """
     TODO
     """
-    if all([isinstance(image, np.ndarray) for image in [image, template]]):
-        return crop_to_template_np(image, template)
-    elif all([isinstance(image, tc.Tensor) for image in [image, template]]):
-        return crop_to_template_tc(image, template)
-    elif all([isinstance(image, pyvips.Image) for image in [image, template]]):
-        return crop_to_template_pyvips(image, template)
+    if isinstance(image, np.ndarray) in image:
+        return crop_to_template_tc(image, template_shape)
     else:
         raise ValueError("Unsupported type.")
-    
+
 def crop_to_template_np(
     image : np.ndarray,
     template : np.ndarray,
@@ -338,12 +334,9 @@ def crop_to_template_np(
 
 def crop_to_template_tc(
     image : tc.Tensor,
-    template : tc.Tensor,
+    template : Tuple[int,int],
     ) -> tc.Tensor:
-    """
-    TODO
-    """
-    return image[:, :, :template.shape[2], :template.shape[3]]
+    return image[:, :, :template[0], :template[1]]
 
 def crop_to_template_pyvips(
     image : pyvips.Image,
