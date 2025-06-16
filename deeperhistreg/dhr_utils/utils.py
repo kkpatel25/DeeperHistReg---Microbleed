@@ -14,7 +14,8 @@ import pyvips
 import torch as tc
 import torch.nn.functional as F
 import torchvision.transforms as tr
-
+from scipy.ndimage import gaussian_filter
+from skimage.transform import resize
 
 ### Internal Imports ###
 
@@ -743,3 +744,42 @@ def transform_landmarks(landmarks, displacement_field):
     uy = nd.map_coordinates(u_y, [landmarks_y, landmarks_x], mode='nearest')
     new_landmarks = np.stack((landmarks_x + ux, landmarks_y + uy), axis=1)
     return new_landmarks
+
+
+def smooth_and_resample_color_image(image_np: np.ndarray, resample_ratio: int) -> np.ndarray:
+    """
+    Apply Gaussian smoothing and resample a color image.
+
+    Parameters:
+    - image_np: np.ndarray of shape (H, W, 3)
+    - resample_ratio: float, e.g., 0.5 to downsample by half
+
+    Returns:
+    - resampled_image: np.ndarray of shape (H', W', 3)
+    """
+    if image_np.ndim != 3 or image_np.shape[2] != 3:
+        raise ValueError("Input must be a color image with shape (H, W, 3)")
+
+    # Smooth each channel independently
+    sigma = calculate_smoothing_sigma(resample_ratio)
+    smoothed = np.stack([
+        gaussian_filter(image_np[..., c], sigma=sigma)
+        for c in range(3)
+    ], axis=-1)
+
+    # Compute new shape
+    new_shape = (int(image_np.shape[0] * resample_ratio),
+                 int(image_np.shape[1] * resample_ratio),
+                 3)
+
+    # Resize image using linear interpolation
+    resampled_image = resize(
+        smoothed,
+        output_shape=new_shape,
+        order=1,  # Linear interpolation
+        mode='reflect',
+        anti_aliasing=False,  # Already smoothed manually
+        preserve_range=True
+    ).astype(image_np.dtype)
+
+    return resampled_image

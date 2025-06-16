@@ -72,7 +72,7 @@ class PairFullLoader():
         """
         TODO
         """
-        source = self.source_loader.resample(source_resample_ratio)
+        source = self.WSI.resample(source_resample_ratio)
         target = self.target_loader.resample(target_resample_ratio)
         padded_source, padded_target, padding_params = self.pad_to_same_shape(source, target, pad_value)
         return padded_source, padded_target, padding_params
