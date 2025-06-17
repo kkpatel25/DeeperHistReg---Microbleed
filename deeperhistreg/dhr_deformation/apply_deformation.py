@@ -13,8 +13,6 @@ import torch as tc
 
 ### Internal Imports ###
 from dhr_utils import utils as u
-from dhr_input_output.dhr_savers import pair_full_saver as pair_saver
-from dhr_input_output.dhr_savers import tiff_saver as tiff_saver
 from dhr_utils import warping as w
 
 ########################
@@ -34,8 +32,4 @@ def apply_deformation(
 
     warped_source = warped_source.cpu().to(tc.uint8)
     return warped_source
-
-    #to_save = pair_saver.PairFullSaver(saver, save_params)
-    #to_save.save_images(warped_source, target_shape[:2], warped_image_path)
-
 

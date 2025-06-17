@@ -17,8 +17,6 @@ from dhr_deformation import apply_deformation as adf
 from dhr_utils import utils as u
 from dhr_utils import warping as w
 
-from dhr_input_output.dhr_savers import results_saver as rs
-
 ########################
 
 class DeeperHistReg_FullResolution():
@@ -40,20 +38,16 @@ class DeeperHistReg_FullResolution():
         pad_value = loading_params['pad_value']
         source_resample_ratio = loading_params['source_resample_ratio']
         target_resample_ratio = loading_params['target_resample_ratio']
+        self.fixed, self.moving = u.image_to_tensor(self.fixed), u.image_to_tensor(self.moving)
+        self.fixed, self.moving, self.padding_params = u.pad_to_same_size(self.fixed, self.moving, pad_value)
 
-
-        #self.moving = u.smooth_and_resample_color_image(self.moving, source_resample_ratio)
-        #self.fixed = u.smooth_and_resample_color_image(self.fixed, target_resample_ratio)
-
-        self.fixed, self.moving, self.padding_params = u.pad_to_same_size_np(self.fixed, self.moving, pad_value)
-        print(self.padding_params)
+        self.fixed, self.moving = u.resample_handler(self.fixed, source_resample_ratio), u.resample_handler(self.moving, target_resample_ratio)
 
         self.padding_params['source_resample_ratio'] = source_resample_ratio
         self.padding_params['target_resample_ratio'] = target_resample_ratio
 
-        # this is addition
-        self.fixed, self.moving = u.image_to_tensor(self.fixed), u.image_to_tensor(self.moving)
-        self.org_source, self.org_target = self.fixed.to(tc.float32).to(self.device), self.moving.to(tc.float32).to(self.device)
+
+        self.org_source, self.org_target = self.moving.to(tc.float32).to(self.device), self.fixed.to(tc.float32).to(self.device)
 
     def run_prepreprocessing(self) -> None:
         """

@@ -739,40 +739,9 @@ def transform_landmarks(landmarks, displacement_field):
     return new_landmarks
 
 
-def smooth_and_resample_color_image(image_np: np.ndarray, resample_ratio: int) -> np.ndarray:
-    """
-    Apply Gaussian smoothing and resample a color image.
-
-    Parameters:
-    - image_np: np.ndarray of shape (H, W, 3)
-    - resample_ratio: float, e.g., 0.5 to downsample by half
-
-    Returns:
-    - resampled_image: np.ndarray of shape (H', W', 3)
-    """
-    if image_np.ndim != 3 or image_np.shape[2] != 3:
-        raise ValueError("Input must be a color image with shape (H, W, 3)")
-
-    # Smooth each channel independently
+def resample_handler(image: tc.Tensor, resample_ratio: int) -> tc.Tensor:
     sigma = calculate_smoothing_sigma(resample_ratio)
-    smoothed = np.stack([
-        gaussian_filter(image_np[..., c], sigma=sigma)
-        for c in range(3)
-    ], axis=-1)
-
-    # Compute new shape
-    new_shape = (int(image_np.shape[0] * resample_ratio),
-                 int(image_np.shape[1] * resample_ratio),
-                 3)
-
-    # Resize image using linear interpolation
-    resampled_image = resize(
-        smoothed,
-        output_shape=new_shape,
-        order=1,  # Linear interpolation
-        mode='reflect',
-        anti_aliasing=False,  # Already smoothed manually
-        preserve_range=True
-    ).astype(image_np.dtype)
-
+    smoothed_image = gaussian_smoothing(image.float(), sigma)
+    resampled_image = resample(smoothed_image, 1 / resample_ratio).to(tc.uint8)
     return resampled_image
+
