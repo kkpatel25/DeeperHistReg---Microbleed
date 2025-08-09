@@ -9,15 +9,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 ### External Imports ###
 import numpy as np
 import torch as tc
-import matplotlib.pyplot as plt
 
 ### Internal Imports ###
-from dhr_paths import model_paths as p
-from dhr_utils import utils as u
-from dhr_utils import warping as w
-from dhr_networks import superglue as sg
-from dhr_registration.dhr_building_blocks import cost_functions as cf
-
+from arvind.deeperhistreg.dhr_paths import model_paths as p
+from arvind.deeperhistreg.dhr_utils import utils as u
+from arvind.deeperhistreg.dhr_utils import warping as w
+from arvind.deeperhistreg.dhr_networks import superglue as sg
 ########################
 
 def superpoint_superglue(
@@ -106,28 +103,6 @@ def perform_registration(
     valid = matches > -1
     mkpts0 = kpts0[valid]
     mkpts1 = kpts1[matches[valid]]
-
-    if show:
-        plt.figure()
-        plt.subplot(1, 2, 1)
-        plt.imshow(source.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-        plt.plot(kpts0[:, 0], kpts0[:, 1], "r*")
-        plt.subplot(1, 2, 2)
-        plt.imshow(target.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-        plt.plot(kpts1[:, 0], kpts1[:, 1], "r*")
-
-        plt.figure()
-        plt.subplot(1, 2, 1)
-        plt.imshow(source.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-        plt.plot(mkpts0[:, 0], mkpts0[:, 1], "r*")
-        plt.subplot(1, 2, 2)
-        plt.imshow(target.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-        plt.plot(mkpts1[:, 0], mkpts1[:, 1], "r*")
-
-        plt.figure()
-        for i in range(len(mkpts0)):
-            plt.plot([mkpts0[i, 0], mkpts1[i, 0]], [mkpts0[i, 1], mkpts1[i, 1]], "*-")
-        plt.show()
 
     h_pts0 = u.points_to_homogeneous_representation(mkpts0)
     h_pts1 = u.points_to_homogeneous_representation(mkpts1)

@@ -4,22 +4,18 @@ import sys
 current_file = sys.modules[__name__]
 sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from typing import Tuple
 
 ### External Imports ###
 import numpy as np
 import torch as tc
-import matplotlib.pyplot as plt
 import cv2
 
 ### Internal Imports ###
-from dhr_paths import model_paths as p
-from dhr_utils import utils as u
-from dhr_utils import warping as w
-from dhr_building_blocks import cost_functions as cf
-from dhr_networks import superglue as sg
-
+from arvind.deeperhistreg.dhr_paths import model_paths as p
+from arvind.deeperhistreg.dhr_utils import utils as u
+from arvind.deeperhistreg.dhr_utils import warping as w
+from arvind.deeperhistreg.dhr_networks import superglue as sg
 ########################
 
 
@@ -104,28 +100,6 @@ def sift_superglue(
     valid = matches > -1
     mkpts0 = source_kp[valid]
     mkpts1 = target_kp[matches[valid]]
- 
-    if show:
-        plt.figure()
-        plt.subplot(1, 2, 1)
-        plt.imshow(resampled_source.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-        plt.plot(source_kp[:, 0], source_kp[:, 1], "r*")
-        plt.subplot(1, 2, 2)
-        plt.imshow(resampled_target.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-        plt.plot(target_kp[:, 0], target_kp[:, 1], "r*")
-
-        plt.figure()
-        plt.subplot(1, 2, 1)
-        plt.imshow(resampled_source.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-        plt.plot(mkpts0[:, 0], mkpts0[:, 1], "r*")
-        plt.subplot(1, 2, 2)
-        plt.imshow(resampled_target.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-        plt.plot(mkpts1[:, 0], mkpts1[:, 1], "r*")
-
-        plt.figure()
-        for i in range(len(mkpts0)):
-            plt.plot([mkpts0[i, 0], mkpts1[i, 0]], [mkpts0[i, 1], mkpts1[i, 1]], "*-")
-        plt.show()
 
     h_pts0 = u.points_to_homogeneous_representation(mkpts0)
     h_pts1 = u.points_to_homogeneous_representation(mkpts1)

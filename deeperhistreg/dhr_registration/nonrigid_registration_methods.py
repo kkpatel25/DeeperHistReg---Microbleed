@@ -9,10 +9,9 @@ from typing import Union
 import torch as tc
 
 ### Internal Imports ###
-from dhr_nonrigid_registration import io_bsplines as iob
-from dhr_nonrigid_registration import io_nonrigid as ion
-from dhr_utils import utils as u
-
+from arvind.deeperhistreg.dhr_registration.dhr_nonrigid_registration import io_bsplines as iob
+from arvind.deeperhistreg.dhr_registration.dhr_nonrigid_registration import io_nonrigid as ion
+from arvind.deeperhistreg.dhr_utils import utils as u
 ########################
 
 def identity_nonrigid_registration(

@@ -9,13 +9,13 @@ import numpy as np
 import torch as tc
 from typing import Union
 
+
 ### Internal Imports ###
-from dhr_preprocessing import preprocessing as pre
-from dhr_registration import initial_alignment_methods as ia
-from dhr_registration import nonrigid_registration_methods as nr
-from dhr_deformation import apply_deformation as adf
-from dhr_utils import utils as u
-from dhr_utils import warping as w
+from arvind.deeperhistreg.dhr_preprocessing import preprocessing as pre
+from arvind.deeperhistreg.dhr_registration import initial_alignment_methods as ia
+from arvind.deeperhistreg.dhr_registration import nonrigid_registration_methods as nr
+from arvind.deeperhistreg.dhr_utils import utils as u
+from arvind.deeperhistreg.dhr_utils import warping as w
 
 ########################
 
@@ -63,7 +63,8 @@ class DeeperHistReg_FullResolution():
                 self.padding_params['initial_resample_ratio'] = self.postprocessing_params['initial_resample_ratio']
 
             self.current_displacement_field = u.create_identity_displacement_field(self.pre_source)
-            tc.cuda.empty_cache()
+            if self.device == "cuda":
+                tc.cuda.empty_cache()
 
     def run_initial_registration(self) -> None:
         """
@@ -75,7 +76,8 @@ class DeeperHistReg_FullResolution():
             self.initial_transform = initial_registration_function(self.pre_source, self.pre_target, initial_registration_params)
             self.initial_displacement_field = w.tc_transform_to_tc_df(self.initial_transform, self.pre_source.size())
             self.current_displacement_field = self.initial_displacement_field
-            tc.cuda.empty_cache()
+            if self.device == "cuda":
+                tc.cuda.empty_cache()
 
     def run_nonrigid_registration(self) -> None:
         """
@@ -86,7 +88,8 @@ class DeeperHistReg_FullResolution():
             nonrigid_registration_function = nr.get_function(nonrigid_registration_params['nonrigid_registration_function'])
             self.nonrigid_displacement_field = nonrigid_registration_function(self.pre_source, self.pre_target, self.current_displacement_field, nonrigid_registration_params)
             self.current_displacement_field = self.nonrigid_displacement_field
-            tc.cuda.empty_cache()
+            if self.device == "cuda":
+                tc.cuda.empty_cache()
 
     def preprocessing(self) -> None:
         self.run_prepreprocessing()
@@ -108,5 +111,4 @@ class DeeperHistReg_FullResolution():
         self.preprocessing()
         self.initial_registration()
         self.nonrigid_registration()
-        # this now returns the displacement field as a tensor, I believe
         return self.current_displacement_field

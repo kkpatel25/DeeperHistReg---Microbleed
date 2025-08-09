@@ -4,16 +4,16 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 current_file = sys.modules[__name__]
-from typing import Union, Callable, Iterable, Sequence, Tuple
+from typing import Union, Callable, Tuple
 
 ### External Imports ###
 import numpy as np
 import torch as tc
 
 ### Internal Imports ###
-import general_preprocessing as gp
-import images_preprocessing as ip
-import landmarks_preprocessing as lp
+import arvind.deeperhistreg.dhr_preprocessing.general_preprocessing as gp
+import arvind.deeperhistreg.dhr_preprocessing.images_preprocessing as ip
+import arvind.deeperhistreg.dhr_preprocessing.landmarks_preprocessing as lp
 
 ########################
 

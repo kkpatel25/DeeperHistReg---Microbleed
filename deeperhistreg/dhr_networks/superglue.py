@@ -6,15 +6,12 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from copy import deepcopy
-from pathlib import Path
 from typing import List, Tuple
-
 import numpy as np
-import matplotlib.pyplot as plt
 import torch
 from torch import nn
 
-import dhr_utils.utils as u
+from arvind.deeperhistreg.dhr_utils import utils as u
 
 def simple_nms(scores, nms_radius: int):
     """ Fast Non-maximum suppression to remove nearby points """
@@ -443,77 +440,3 @@ class Matching(torch.nn.Module):
 def points_to_homogeneous_representation(points: np.ndarray):
     homogenous_points = np.concatenate((points, np.ones((points.shape[0], 1), dtype=points.dtype)), axis=1)
     return homogenous_points
-
-def run():
-    image_1 = np.zeros((600, 600), dtype=np.float32)
-    image_1[200:400, 200:400] = 1
-
-    image_2 = np.zeros((600, 600), dtype=np.float32)
-    image_2[300:500, 300:500] = 1
-
-    superpoint_weights_path = r'D:\Research\MedicalImageRegistration\DeeperHistReg\models\superpoint_v1.pth'
-    superglue_weights_path = r'D:\Research\MedicalImageRegistration\DeeperHistReg\models\superglue_outdoor.pth'
-
-    nms_radius = 4
-    keypoint_threshold = 0.005
-    max_keypoints = 1024
-
-    superglue = 'outdoor'
-    sinkhorn_iterations = 20
-    match_threshold = 0.2
-
-    config = {
-        'superpoint': {
-            'nms_radius': nms_radius,
-            'keypoint_threshold': keypoint_threshold,
-            'max_keypoints': max_keypoints
-        },
-        'superglue': {
-            'weights': superglue,
-            'sinkhorn_iterations': sinkhorn_iterations,
-            'match_threshold': match_threshold,
-        }       
-    }
-    device = "cuda:0"
-    model = Matching(config).eval().to(device)
-
-    model.superpoint.load_state_dict(torch.load(superpoint_weights_path))
-    model.superglue.load_state_dict(torch.load(superglue_weights_path))
-    
-    image_1 = torch.from_numpy(image_1).unsqueeze(0).unsqueeze(0).to(device)
-    image_2 = torch.from_numpy(image_2).unsqueeze(0).unsqueeze(0).to(device)
-
-    pred = model({'image0': image_1, 'image1': image_2})
-    pred = {k: v[0].detach().cpu().numpy() for k, v in pred.items()}
-    kpts0, kpts1 = pred['keypoints0'], pred['keypoints1']
-    matches = pred['matches0']
-
-    valid = matches > -1
-    mkpts0 = kpts0[valid]
-    mkpts1 = kpts1[matches[valid]]
-
-    h_pts0 = points_to_homogeneous_representation(mkpts0)
-    h_pts1 = points_to_homogeneous_representation(mkpts1)
-
-    transform, _, _, _ = np.linalg.lstsq(h_pts1, h_pts0)
-    transform = transform.T
-    df_np = u.np_transform_to_np_df(transform, (image_1.shape[2], image_1.shape[3]))
-    displacement_field = u.np_df_to_tc_df(df_np).type_as(image_1)
-    warped_image = u.warp_image(image_1, displacement_field)
-
-    plt.figure()
-    plt.subplot(1, 3, 1)
-    plt.imshow(image_1.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-    plt.plot(mkpts0[:, 0], mkpts0[:, 1], "r*")
-    plt.subplot(1, 3, 2)
-    plt.imshow(image_2.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-    plt.plot(mkpts1[:, 0], mkpts1[:, 1], "r*")
-    plt.subplot(1, 3, 3)
-    plt.imshow(warped_image.detach().cpu().numpy()[0, 0, :, :], cmap='gray')
-    plt.show()
-
-
-
-
-if __name__ == "__main__":
-    run()

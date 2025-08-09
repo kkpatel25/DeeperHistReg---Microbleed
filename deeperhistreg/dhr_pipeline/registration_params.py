@@ -7,9 +7,6 @@ import pathlib
 import json
 
 
-### External Imports ###
-import numpy as np
-
 ### Internal Imports ###
 
 ########################

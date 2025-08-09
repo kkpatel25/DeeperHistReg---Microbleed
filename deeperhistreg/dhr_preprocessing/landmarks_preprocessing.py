@@ -14,7 +14,7 @@ import cv2
 
 
 ### Internal Imports ###
-from dhr_utils import utils as u
+from arvind.deeperhistreg.dhr_utils import utils as u
 
 ########################
 

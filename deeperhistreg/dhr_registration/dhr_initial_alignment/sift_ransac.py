@@ -9,13 +9,11 @@ from typing import Tuple
 ### External Imports ###
 import numpy as np
 import torch as tc
-import matplotlib.pyplot as plt
 import cv2
 
 ### Internal Imports ###
-from dhr_utils import utils as u
-from dhr_utils import warping as w
-from dhr_building_blocks import cost_functions as cf
+from arvind.deeperhistreg.dhr_utils import utils as u
+from arvind.deeperhistreg.dhr_utils import warping as w
 
 ########################
 
@@ -63,27 +61,10 @@ def sift_ransac(
         print(f"Number of source points: {len(source_points)}")
         print(f"Number of target points: {len(target_points)}")
 
-    if show:
-        plt.figure()
-        plt.subplot(1, 2, 1)
-        plt.imshow(src, cmap='gray')
-        plt.plot(source_points[:, 0, 0], source_points[:, 0, 1], "r*")
-        plt.subplot(1, 2, 2)
-        plt.imshow(trg, cmap='gray')
-        plt.plot(target_points[:, 0, 0], target_points[:, 0, 1], "r*")
-        plt.show()
     matchesMask = [[0,0] for i in range(len(matches))]
     for i,(m,n) in enumerate(matches):
         if m.distance < 0.7*n.distance:
             matchesMask[i]=[1,0]
-    if show:
-        draw_params = dict(matchColor = (0,255,0),
-                    singlePointColor = (255,0,0),
-                    matchesMask = matchesMask,
-                    flags = cv2.DrawMatchesFlags_DEFAULT)
-        img3 = cv2.drawMatchesKnn(src,source_keypoints,trg,target_keypoints,matches,None,**draw_params)
-        plt.imshow(img3)
-        plt.show()
     try:
         transform, _ = cv2.estimateAffinePartial2D(source_points, target_points, 0) # [0, cv2.RANSAC, cv2.RHO, cv2.LMEDS]
         num_matches = len(source_points)

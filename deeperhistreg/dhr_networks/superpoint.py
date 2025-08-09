@@ -2,7 +2,6 @@
 # License from the repository applies to this part of the framework.
 
 import numpy as np
-import matplotlib.pyplot as plt
 import torch
 
 class SuperPointNet(torch.nn.Module):
@@ -261,35 +260,3 @@ def nn_match_two_way(desc1, desc2, nn_thresh):
     matches[1, :] = m_idx2
     matches[2, :] = scores
     return matches
-
-
-def run():
-    image = np.zeros((600, 600), dtype=np.float32)
-    image[200:400, 200:400] = 1
-
-    weights_path = r'D:\Research\MedicalImageRegistration\DeeperHistReg\models\superpoint_v1.pth'
-    nms_dist = 4
-    conf_thresh = 0.015
-    nn_thresh = 0.7
-    model = SuperPointFrontend(weights_path, nms_dist, conf_thresh, nn_thresh, cuda=True)
-
-    pts, desc, heatmap = model.run(image)
-
-    print(pts.shape)
-    print(desc.shape)
-    print(heatmap.shape)
-
-    plt.figure()
-    plt.imshow(image, cmap='gray')
-    plt.plot(pts[0, :], pts[1, :], "r*")
-    plt.show()
-
-    plt.figure()
-    plt.imshow(heatmap, cmap='gray')
-    plt.plot(pts[0, :], pts[1, :], "r*")
-    plt.show()
-
-
-
-if __name__ == "__main__":
-    run()

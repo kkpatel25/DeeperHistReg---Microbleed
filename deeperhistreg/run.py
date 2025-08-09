@@ -7,15 +7,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 
 from typing import Iterable
 import argparse
-from datetime import datetime
-import shutil
 
 ### External Imports ###
 
 ### Internal Imports ###
-from dhr_pipeline import full_resolution as fr
-from dhr_pipeline import registration_params as rp
-
+from arvind.deeperhistreg.dhr_pipeline import full_resolution as fr
+from arvind.deeperhistreg.dhr_pipeline import registration_params as rp
 
 def run_registration(fixed: np.ndarray, moving: np.ndarray, **config):
     ### Parse Config ###
@@ -26,14 +23,6 @@ def run_registration(fixed: np.ndarray, moving: np.ndarray, **config):
         registration_parameters = config['registration_parameters']
 
     experiment_name = config['case_name']
-    save_path = config['temporary_path']
-
-    if save_path is None:
-        save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), str(datetime.now().strftime("%Y-%m-%d_%H-%M-%S")))
-
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-
     ### Run Registration ###
     try:
         registration_parameters['case_name'] = experiment_name
@@ -41,7 +30,6 @@ def run_registration(fixed: np.ndarray, moving: np.ndarray, **config):
         # this function will return the displacement field
 
         displacement_field = pipeline.run_registration(fixed, moving)
-        shutil.rmtree(save_path)
         return displacement_field
 
     except Exception as e:
@@ -64,7 +52,3 @@ def parse_args(args : Iterable) -> dict:
     config = parser.parse_args()
     config = vars(config)
     return config
-
-if __name__ == "__main__":
-    config = parse_args(sys.argv[1:])
-    run_registration(fixed, moving, **config)

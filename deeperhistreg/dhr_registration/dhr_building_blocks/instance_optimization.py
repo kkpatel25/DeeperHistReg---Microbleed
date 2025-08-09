@@ -11,8 +11,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 ### Internal Imports ###
-from dhr_utils import utils as u
-from dhr_utils import warping as w
+from ...dhr_utils import utils as u
+from ...dhr_utils import warping as w
 import bsplines as bs
 
 ########################

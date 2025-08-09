@@ -10,7 +10,7 @@ import numpy as np
 import torch as tc
 
 ### Internal Imports ###
-import dhr_utils.utils as u
+from arvind.deeperhistreg.dhr_utils import utils as u
 
 ########################
 

@@ -4,19 +4,15 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import pathlib
-from typing import Union, Iterable, Sequence, Tuple
+from typing import Union, Iterable, Tuple
 
 ### External Imports ###
 import math
 import numpy as np
 import scipy.ndimage as nd
-import pyvips
 import torch as tc
 import torch.nn.functional as F
 import torchvision.transforms as tr
-from scipy.ndimage import gaussian_filter
-from skimage.transform import resize
-
 ### Internal Imports ###
 
 
@@ -38,7 +34,7 @@ def normalize(tensor : Union[tc.Tensor, np.ndarray]) -> Union[tc.Tensor, np.ndar
             return normalized_tensor
         else:
             raise ValueError("Unsupported number of channels.")
-        
+
     elif isinstance(tensor, np.ndarray):
         if len(tensor.shape) == 2:
             return (tensor - np.min(tensor)) / (np.max(tensor) - np.min(tensor))
@@ -51,7 +47,7 @@ def normalize(tensor : Union[tc.Tensor, np.ndarray]) -> Union[tc.Tensor, np.ndar
             raise ValueError("Unsupported number of channels.")
     else:
         raise ValueError("Unsupported array library.")
-    
+
 def normalize_to_window(tensor: Union[tc.Tensor, np.ndarray], min_value : float, max_value : float) -> Union[tc.Tensor, np.ndarray]:
     """
     TODO
@@ -76,7 +72,7 @@ def resample_displacement_field(displacement_field : tc.Tensor, resample_ratio :
     """
     return F.interpolate(displacement_field.permute(0, 3, 1, 2), scale_factor = 1 / resample_ratio, mode=mode, recompute_scale_factor=False, align_corners=False).permute(0, 2, 3, 1)
 
-def resample_displacement_field_to_size(displacement_field: tc.Tensor, new_size: tc.Tensor, mode: str='bilinear') -> tc.Tensor:
+def resample_displacement_field_to_size(displacement_field: tc.Tensor, new_size: tc.Tensor | Tuple[int,int], mode: str='bilinear') -> tc.Tensor:
     """
     TODO
     """
@@ -181,9 +177,9 @@ def calculate_pad_value(size_1 : Iterable[int], size_2 : Iterable[int]) -> Tuple
     return pad_1, pad_2
 
 def pad_to_same_size(
-    image_1 : Union[tc.Tensor, np.ndarray, pyvips.Image],
-    image_2 : Union[tc.Tensor, np.ndarray, pyvips.Image],
-    pad_value : float=1.0) -> Tuple[Union[tc.Tensor, np.ndarray, pyvips.Image], Union[tc.Tensor, np.ndarray, pyvips.Image], dict]:
+    image_1 : Union[tc.Tensor, np.ndarray],
+    image_2 : Union[tc.Tensor, np.ndarray],
+    pad_value : float=1.0) -> Tuple[Union[tc.Tensor, np.ndarray], Union[tc.Tensor, np.ndarray], dict]:
     """
     TODO
     """
@@ -191,8 +187,6 @@ def pad_to_same_size(
         return pad_to_same_size_np(image_1, image_2, pad_value)
     elif all([isinstance(image, tc.Tensor) for image in [image_1, image_2]]):
         return pad_to_same_size_tc(image_1, image_2, pad_value)
-    elif all([isinstance(image, pyvips.Image) for image in [image_1, image_2]]):
-        return pad_to_same_size_pyvips(image_1, image_2, pad_value)
     else:
         raise ValueError("Unsupported type.")
 
@@ -210,20 +204,6 @@ def pad_to_same_size_np(image_1 : np.ndarray, image_2 : np.ndarray, pad_value : 
     padding_params['pad_2'] = pad_2
     return image_1, image_2, padding_params
 
-
-def pad_to_same_size_pyvips(image_1 : pyvips.Image, image_2 : pyvips.Image, pad_value : float=1.0) -> Tuple[pyvips.Image, pyvips.Image, dict]:
-    """
-    TODO
-    """
-    y_size_1, x_size_1 = image_1.height, image_1.width
-    y_size_2, x_size_2 = image_2.height, image_2.width
-    pad_1, pad_2 = calculate_pad_value((y_size_1, x_size_1), (y_size_2, x_size_2))
-    image_1 = image_1.gravity("centre", x_size_1 + pad_1[1][0] + pad_1[1][1], y_size_1 + pad_1[0][0] + pad_1[0][1], background=[pad_value, pad_value, pad_value])
-    image_2 = image_2.gravity("centre", x_size_2 + pad_2[1][0] + pad_2[1][1], y_size_2 + pad_2[0][0] + pad_2[0][1], background=[pad_value, pad_value, pad_value])
-    padding_params = dict()
-    padding_params['pad_1'] = pad_1
-    padding_params['pad_2'] = pad_2
-    return image_1, image_2, padding_params
 
 def pad_to_same_size_tc(image_1 : tc.Tensor, image_2 : tc.Tensor, pad_value : float=1.0) -> Tuple[tc.Tensor, tc.Tensor, dict]:
     """
@@ -253,10 +233,10 @@ def pad_to_same_size_tc(image_1 : tc.Tensor, image_2 : tc.Tensor, pad_value : fl
 
 
 def unpad(
-    image_1 : Union[tc.Tensor, np.ndarray, pyvips.Image],
-    image_2 : Union[tc.Tensor, np.ndarray, pyvips.Image],
+    image_1 : Union[tc.Tensor, np.ndarray],
+    image_2 : Union[tc.Tensor, np.ndarray],
     padding_params : dict,
-    unpad_with_target : bool = False) -> Tuple[Union[tc.Tensor, np.ndarray, pyvips.Image], Union[tc.Tensor, np.ndarray, pyvips.Image]]:
+    unpad_with_target : bool = False) -> Tuple[Union[tc.Tensor, np.ndarray], Union[tc.Tensor, np.ndarray]]:
     """
     TODO
     """
@@ -264,11 +244,9 @@ def unpad(
         return unpad_np(image_1, image_2, padding_params, unpad_with_target)
     elif all([isinstance(image, tc.Tensor) for image in [image_1, image_2]]):
         return unpad_tc(image_1, image_2, padding_params, unpad_with_target)
-    elif all([isinstance(image, pyvips.Image) for image in [image_1, image_2]]):
-        return unpad_pyvips(image_1, image_2, padding_params, unpad_with_target)
     else:
         raise ValueError("Unsupported type.")
-    
+
 def unpad_np(
     image_1 : np.ndarray,
     image_2 : np.ndarray,
@@ -282,7 +260,7 @@ def unpad_np(
     image_1 = image_1[sp[0][0]:image_1.shape[0]-sp[0][1], sp[1][0]:image_1.shape[1]-sp[1][1], :]
     image_2 = image_2[tp[0][0]:image_2.shape[0]-tp[0][1], tp[1][0]:image_2.shape[1]-tp[1][1], :]
     return image_1, image_2
-    
+
 def unpad_tc(
     image_1 : tc.Tensor,
     image_2 : tc.Tensor,
@@ -297,24 +275,10 @@ def unpad_tc(
     image_2 = image_2[:, :, tp[0][0]:image_2.shape[2]-tp[0][1], tp[1][0]:image_2.shape[3]-tp[1][1]]
     return image_1, image_2
 
-def unpad_pyvips(
-    image_1 : pyvips.Image,
-    image_2 : pyvips.Image,
-    padding_params : dict,
-    unpad_with_target : bool) -> Tuple[pyvips.Image, pyvips.Image]:
-    """
-    TODO
-    """
-    sp = padding_params['pad_2'] if unpad_with_target else padding_params['pad_1']
-    tp = padding_params['pad_2']
-    image_1 = image_1.crop(sp[1][0], sp[0][0], image_1.width - sp[1][1] - sp[1][0], image_1.height - sp[0][1] - sp[0][0])
-    image_2 = image_2.crop(tp[1][0], tp[0][0], image_2.width - tp[1][1] - tp[1][0], image_2.height - tp[0][1] - tp[0][0])
-    return image_1, image_2
-
 def crop_to_template(
-    image : Union[tc.Tensor, np.ndarray, pyvips.Image],
+    image : Union[tc.Tensor, np.ndarray],
     template_shape : Tuple[int,int],
-    ) -> Union[tc.Tensor, np.ndarray, pyvips.Image]:
+    ) -> Union[tc.Tensor, np.ndarray]:
     """
     TODO
     """
@@ -337,15 +301,6 @@ def crop_to_template_tc(
     template : Tuple[int,int],
     ) -> tc.Tensor:
     return image[:, :, :template[0], :template[1]]
-
-def crop_to_template_pyvips(
-    image : pyvips.Image,
-    template : pyvips.Image,
-    ) -> tc.Tensor:
-    """
-    TODO
-    """
-    return image.crop(0, 0, template.width, template.height)
 
 def calculate_diagonal(tensor : tc.Tensor) -> float:
     """
@@ -405,7 +360,7 @@ def tensor_gradient(tensor: tc.Tensor) -> Tuple[tc.Tensor, tc.Tensor]:
     ----------
     tensor : tc.Tensor
         The input tensor
-  
+
     Returns
     ----------
     gradient : tuple of tc.Tensor
@@ -438,7 +393,7 @@ def create_pyramid(tensor: tc.Tensor, num_levels: int, mode: str='bilinear') -> 
         The number of output levels
     mode : str
         The interpolation mode ("bilinear" or "nearest")
-    
+
     Returns
     ----------
     pyramid: list of tc.Tensor
@@ -564,7 +519,7 @@ def calculate_affine_transform(source_points : np.ndarray, target_points : np.nd
     TODO
     """
     transform, _, _, _ = np.linalg.lstsq(source_points, target_points, rcond=None)
-    transform = transform.T    
+    transform = transform.T
     return transform
 
 def points_to_homogeneous_representation(points: np.ndarray) -> np.ndarray:
@@ -587,7 +542,7 @@ def calculate_rigid_transform(source_points : np.ndarray, target_points : np.nda
     source[1::2, 2] = 0
     source[1::2, 3] = 1
     inv_source = np.linalg.pinv(source)
-    params = inv_source @ target 
+    params = inv_source @ target
     transform = np.array([
         [params[0], params[1], params[2]],
         [-params[1], params[0], params[3]],
@@ -695,38 +650,12 @@ def tc_df_to_np_df(displacement_field_tc: tc.Tensor) -> np.ndarray:
         displacement_field_np[2, :, :, :] = temp_df_copy[0, :, :, :] / 2.0 * (shape[3])
     return displacement_field_np
 
-def np_df_to_pyvips_df(displacement_field : np.ndarray) -> pyvips.Image:
-    """
-    TODO
-    """
-    grid_x, grid_y = np.meshgrid(np.arange(displacement_field.shape[2]), np.arange(displacement_field.shape[1]))
-    df = displacement_field.copy()
-    df[0, :, :] += grid_x
-    df[1, :, :] += grid_y
-    df_vips = pyvips.Image.new_from_array(df.swapaxes(0, 1).swapaxes(1, 2))
-    return df_vips
-
 def get_extension(file_path : str) -> str:
     """
     TODO
     """
     _, extension = os.path.splitext(file_path)
     return extension
-
-def array_to_pyvips(array : np.ndarray) -> pyvips.Image:
-    """
-    TODO
-    """
-    pyvips_image = pyvips.Image.new_from_array(array)
-    return pyvips_image
-
-
-def calculate_tre(source_landmarks : np.ndarray, target_landmarks : np.ndarray, image_diagonal : float = None):
-    if image_diagonal is None:
-        tre = np.sqrt(np.square(source_landmarks[:, 0] - target_landmarks[:, 0]) + np.square(source_landmarks[:, 1] - target_landmarks[:, 1]))
-    else:
-        tre = tre / image_diagonal
-    return tre
 
 def transform_landmarks(landmarks, displacement_field):
     u_x = displacement_field[0, :, :, 1].detach().cpu().numpy()

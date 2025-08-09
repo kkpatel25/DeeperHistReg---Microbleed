@@ -11,14 +11,12 @@ import torch as tc
 import cv2
 
 ### Internal Imports ###
-from dhr_utils import utils as u
-from dhr_utils import warping as w
-from dhr_building_blocks import cost_functions as cf
+from arvind.deeperhistreg.dhr_utils import utils as u
+from arvind.deeperhistreg.dhr_utils import warping as w
 
-import superpoint_ransac as spr
-import sift_ransac as sr
-import superpoint_superglue as sg
-
+import arvind.deeperhistreg.dhr_registration.dhr_initial_alignment.superpoint_ransac as spr
+import arvind.deeperhistreg.dhr_registration.dhr_initial_alignment.sift_ransac as sr
+import arvind.deeperhistreg.dhr_registration.dhr_initial_alignment.superpoint_superglue as sg
 ########################
 
 
@@ -41,7 +39,7 @@ def multi_feature(
     run_superpoint_ransac = params['run_superpoint_ransac']
     source, target = u.initial_resampling(source, target, resolution) 
     
-    angle_start, angle_stop = -180, 180
+    angle_start, angle_stop = -45, 45
     for angle in range(angle_start, angle_stop, angle_step):
         _, _, y_size, x_size = source.shape
         x_origin = x_size // 2 

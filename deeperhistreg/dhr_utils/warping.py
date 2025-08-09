@@ -4,19 +4,16 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import pathlib
-from typing import Union
+from typing import Union, Tuple
 
 ### External Imports ###
 import math
 import numpy as np
-import pyvips
 import scipy.ndimage as nd
 import torch as tc
 import torch.nn.functional as F
 import torchvision.transforms as tr
-from . import utils as u
-
-
+import utils as u
 
 ### Internal Imports ###
 
@@ -80,6 +77,35 @@ def warp_tensor(tensor: tc.Tensor, displacement_field: tc.Tensor, grid: tc.Tenso
     sampling_grid = grid + displacement_field
     transformed_tensor = F.grid_sample(tensor, sampling_grid, mode=mode, padding_mode=padding_mode, align_corners=False)
     return transformed_tensor
+
+def warp_large_tensor(tensor: tc.Tensor, displacement_field: tc.Tensor, grid: tc.Tensor=None, padding_mode: str='zeros', device: str="cpu"):
+    """
+    Efficiently warp an int64 label map with nearest-neighbor sampling and preserve label precision.
+    """
+    if grid is None:
+        grid = generate_grid(tensor=tensor, device=device)
+
+    sampling_grid = grid + displacement_field
+
+    # Vectorized mapping of int64 labels to indices
+    labels = tc.unique(tensor)
+    labels_sorted, _ = tc.sort(labels)
+    index_tensor = tc.searchsorted(labels_sorted, tensor)
+
+    # Warp as float32 to use grid_sample
+    warped_index_tensor = F.grid_sample(
+        index_tensor.float(),
+        sampling_grid.float(),
+        mode="nearest",
+        padding_mode=padding_mode,
+        align_corners=False
+    ).long()
+
+    # Map back to original int64 labels
+    warped_tensor = labels_sorted[warped_index_tensor]
+
+    return warped_tensor
+
 
 def transform_tensor(tensor: tc.Tensor, sampling_grid: tc.Tensor, grid: tc.Tensor=None, device: str="cpu", mode: str='bilinear') -> tc.Tensor:
     """
@@ -219,35 +245,3 @@ def warp_landmarks(landmarks : np.ndarray, displacement_field : np.ndarray) -> n
     uy = nd.map_coordinates(displacement_field[1, :, :], [landmarks_y, landmarks_x], mode='nearest')
     new_landmarks = np.stack((landmarks_x + ux, landmarks_y + uy), axis=1)
     return new_landmarks
-
-
-def warp_pyvips(image : pyvips.Image, displacement_field : pyvips.Image, pad_value : float=255.0) -> pyvips.Image:
-    """
-    TODO - documentation
-    """
-    image_width = image.width
-    image_height = image.height
-    df_width = displacement_field.width
-    df_height = displacement_field.height
-    if image_width != df_width or image_height != df_height:
-        displacement_field = displacement_field.resize(image_width / df_width, kernel='linear', vscale= image_height / df_height)
-        df_x = displacement_field[0].linear(float(image_width / df_width), 0)
-        df_y = displacement_field[1].linear(float(image_height / df_height), 0)
-        displacement_field = df_x.bandjoin(df_y)
-    # TODO add background = pad_value after pyvips update
-    warped_image = image.mapim(displacement_field)
-    return warped_image
-
-def warp_pyvips_with_np_df(image : pyvips.Image, displacement_field : np.ndarray, pad_value : float=255.0) -> pyvips.Image:
-    """
-    TODO - documentation
-    """
-    df_vips = u.np_df_to_pyvips_df(displacement_field)
-    return warp_pyvips(image, df_vips, pad_value=pad_value)
-
-def warp_pyvips_with_tc_df(image : pyvips.Image, displacement_field : tc.Tensor, pad_value : float=255.0) -> pyvips.Image:
-    """
-    TODO - documentation
-    """
-    df_np = u.tc_df_to_np_df(displacement_field)
-    return warp_pyvips_with_np_df(image, df_np, pad_value=pad_value)
