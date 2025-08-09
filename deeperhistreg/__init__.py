@@ -6,8 +6,8 @@ This module provides the dhr class, which handles:
 """
 
 
-from arvind.deeperhistreg.dhr_pipeline import full_resolution as direct_registration
-from arvind.deeperhistreg.dhr_pipeline import registration_params as configs
+from deeperhistreg.dhr_pipeline import full_resolution as direct_registration
+from deeperhistreg.dhr_pipeline import registration_params as configs
 
-from arvind.deeperhistreg.dhr_deformation.apply_deformation import apply_deformation
-from arvind.deeperhistreg.run import run_registration
+from deeperhistreg.dhr_deformation.apply_deformation import apply_deformation
+from deeperhistreg.run import run_registration

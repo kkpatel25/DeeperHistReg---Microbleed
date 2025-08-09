@@ -11,13 +11,13 @@ import torch as tc
 import cv2
 
 ### Internal Imports ###
-from arvind.deeperhistreg.dhr_utils import utils as u
-from arvind.deeperhistreg.dhr_utils import warping as w
-from arvind.deeperhistreg.dhr_registration.dhr_building_blocks import cost_functions as cf
+from deeperhistreg.dhr_utils import utils as u
+from deeperhistreg.dhr_utils import warping as w
+from deeperhistreg.dhr_registration.dhr_building_blocks import cost_functions as cf
 
-import arvind.deeperhistreg.dhr_registration.dhr_initial_alignment.superpoint_ransac as spr
-import arvind.deeperhistreg.dhr_registration.dhr_initial_alignment.sift_ransac as sr
-import arvind.deeperhistreg.dhr_registration.dhr_initial_alignment.superpoint_superglue as sg
+import deeperhistreg.dhr_registration.dhr_initial_alignment.superpoint_ransac as spr
+import deeperhistreg.dhr_registration.dhr_initial_alignment.sift_ransac as sr
+import deeperhistreg.dhr_registration.dhr_initial_alignment.superpoint_superglue as sg
 ########################
 
 def feature_based_combination(

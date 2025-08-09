@@ -11,8 +11,8 @@ import argparse
 ### External Imports ###
 
 ### Internal Imports ###
-from arvind.deeperhistreg.dhr_pipeline import full_resolution as fr
-from arvind.deeperhistreg.dhr_pipeline import registration_params as rp
+from deeperhistreg.dhr_pipeline import full_resolution as fr
+from deeperhistreg.dhr_pipeline import registration_params as rp
 
 def run_registration(fixed: np.ndarray, moving: np.ndarray, **config):
     ### Parse Config ###

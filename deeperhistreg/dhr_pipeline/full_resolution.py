@@ -11,11 +11,11 @@ from typing import Union
 
 
 ### Internal Imports ###
-from arvind.deeperhistreg.dhr_preprocessing import preprocessing as pre
-from arvind.deeperhistreg.dhr_registration import initial_alignment_methods as ia
-from arvind.deeperhistreg.dhr_registration import nonrigid_registration_methods as nr
-from arvind.deeperhistreg.dhr_utils import utils as u
-from arvind.deeperhistreg.dhr_utils import warping as w
+from deeperhistreg.dhr_preprocessing import preprocessing as pre
+from deeperhistreg.dhr_registration import initial_alignment_methods as ia
+from deeperhistreg.dhr_registration import nonrigid_registration_methods as nr
+from deeperhistreg.dhr_utils import utils as u
+from deeperhistreg.dhr_utils import warping as w
 
 ########################
 

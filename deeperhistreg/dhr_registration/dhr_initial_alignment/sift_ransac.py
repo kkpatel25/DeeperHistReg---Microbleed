@@ -12,8 +12,8 @@ import torch as tc
 import cv2
 
 ### Internal Imports ###
-from arvind.deeperhistreg.dhr_utils import utils as u
-from arvind.deeperhistreg.dhr_utils import warping as w
+from deeperhistreg.dhr_utils import utils as u
+from deeperhistreg.dhr_utils import warping as w
 
 ########################
 

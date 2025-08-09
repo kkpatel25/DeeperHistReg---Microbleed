@@ -11,9 +11,9 @@ import numpy as np
 import torch as tc
 
 ### Internal Imports ###
-import arvind.deeperhistreg.dhr_preprocessing.general_preprocessing as gp
-import arvind.deeperhistreg.dhr_preprocessing.images_preprocessing as ip
-import arvind.deeperhistreg.dhr_preprocessing.landmarks_preprocessing as lp
+import deeperhistreg.dhr_preprocessing.general_preprocessing as gp
+import deeperhistreg.dhr_preprocessing.images_preprocessing as ip
+import deeperhistreg.dhr_preprocessing.landmarks_preprocessing as lp
 
 ########################
 

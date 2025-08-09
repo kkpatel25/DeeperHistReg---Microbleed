@@ -9,10 +9,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import torch as tc
 
 ### Internal Imports ###
-from arvind.deeperhistreg.dhr_utils import utils as u
-from arvind.deeperhistreg.dhr_utils import warping as w
-from arvind.deeperhistreg.dhr_registration.dhr_building_blocks import cost_functions as cf
-from arvind.deeperhistreg.dhr_registration.dhr_building_blocks import instance_optimization as io
+from deeperhistreg.dhr_utils import utils as u
+from deeperhistreg.dhr_utils import warping as w
+from deeperhistreg.dhr_registration.dhr_building_blocks import cost_functions as cf
+from deeperhistreg.dhr_registration.dhr_building_blocks import instance_optimization as io
 
 ########################
 

@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from arvind.deeperhistreg.dhr_utils import utils as u
+from deeperhistreg.dhr_utils import utils as u
 
 def simple_nms(scores, nms_radius: int):
     """ Fast Non-maximum suppression to remove nearby points """

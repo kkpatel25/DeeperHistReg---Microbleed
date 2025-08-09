@@ -11,10 +11,10 @@ import torch as tc
 import cv2
 
 ### Internal Imports ###
-from arvind.deeperhistreg.dhr_paths import model_paths as p
-from arvind.deeperhistreg.dhr_utils import utils as u
-from arvind.deeperhistreg.dhr_utils import warping as w
-from arvind.deeperhistreg.dhr_networks import superpoint as sp
+from deeperhistreg.dhr_paths import model_paths as p
+from deeperhistreg.dhr_utils import utils as u
+from deeperhistreg.dhr_utils import warping as w
+from deeperhistreg.dhr_networks import superpoint as sp
 ########################
 
 

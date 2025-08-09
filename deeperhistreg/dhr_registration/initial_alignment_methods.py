@@ -11,14 +11,14 @@ import torch as tc
 ### Internal Imports ###
 from ..dhr_utils import utils as u
 
-from arvind.deeperhistreg.dhr_registration.dhr_initial_alignment import exhaustive_rigid_search as ers
-from arvind.deeperhistreg.dhr_registration.dhr_initial_alignment import sift_ransac as sr
-from arvind.deeperhistreg.dhr_registration.dhr_initial_alignment import sift_superglue as ssg
-from arvind.deeperhistreg.dhr_registration.dhr_initial_alignment import superpoint_ransac as spr
-from arvind.deeperhistreg.dhr_registration.dhr_initial_alignment import superpoint_superglue as spsg
-from arvind.deeperhistreg.dhr_registration.dhr_initial_alignment import feature_combination as fc
-from arvind.deeperhistreg.dhr_registration.dhr_initial_alignment import io_affine as ioa
-from arvind.deeperhistreg.dhr_registration.dhr_initial_alignment import multi_feature as mf
+from deeperhistreg.dhr_registration.dhr_initial_alignment import exhaustive_rigid_search as ers
+from deeperhistreg.dhr_registration.dhr_initial_alignment import sift_ransac as sr
+from deeperhistreg.dhr_registration.dhr_initial_alignment import sift_superglue as ssg
+from deeperhistreg.dhr_registration.dhr_initial_alignment import superpoint_ransac as spr
+from deeperhistreg.dhr_registration.dhr_initial_alignment import superpoint_superglue as spsg
+from deeperhistreg.dhr_registration.dhr_initial_alignment import feature_combination as fc
+from deeperhistreg.dhr_registration.dhr_initial_alignment import io_affine as ioa
+from deeperhistreg.dhr_registration.dhr_initial_alignment import multi_feature as mf
 ########################
 
 ### Algorithms ###
